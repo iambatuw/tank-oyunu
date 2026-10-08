@@ -769,7 +769,7 @@ public partial class TankDuel : MonoBehaviour
         }
         if (p1HealthFillImg != null)
         {
-            p1HealthFillImg.color = Color.Lerp(Crimson, Cyan, ratio1);
+            p1HealthFillImg.color = Color.Lerp(Crimson, gameManager.m_SpawnPoints[0].m_PlayerColor, ratio1);
         }
         if (p1HealthText != null)
         {
@@ -786,7 +786,7 @@ public partial class TankDuel : MonoBehaviour
         }
         if (p2HealthFillImg != null)
         {
-            p2HealthFillImg.color = Color.Lerp(Crimson, Amber, ratio2);
+            p2HealthFillImg.color = Color.Lerp(Crimson, gameManager.m_SpawnPoints[1].m_PlayerColor, ratio2);
         }
         if (p2HealthText != null)
         {
@@ -1071,6 +1071,7 @@ public partial class TankDuel : MonoBehaviour
         if (coinsText != null) coinsText.text = GetCoinsLabel();
 
         // Update 3D showcase preview model
+        UpdateGarageColorChoices();
         UpdateGarage3DPreview();
     }
 
@@ -1086,46 +1087,8 @@ public partial class TankDuel : MonoBehaviour
         previewTankInstance = CreateGarageVisual(prefab);
 
         // Apply team color to preview model with full URP property binding and rich armor sheen
-        Color teamCol = currentGaragePlayer == 1 ? UiSage : UiAccent;
-        MeshRenderer[] renderers = previewTankInstance.GetComponentsInChildren<MeshRenderer>();
-        foreach (var rend in renderers)
-        {
-            foreach (var mat in rend.sharedMaterials)
-            {
-                if (mat == null) continue;
-                if (mat.name.Contains("TankColor") || mat.name.Contains("TankRed") ||
-                    (mat.name.Contains("Tank") && !mat.name.Contains("Grey") && !mat.name.Contains("Window") && !mat.name.Contains("Lights")))
-                {
-                    mat.color = teamCol;
-                    if (mat.HasProperty("_BaseColor"))
-                        mat.SetColor("_BaseColor", teamCol);
-                    if (mat.HasProperty("_Color"))
-                        mat.SetColor("_Color", teamCol);
-                    if (mat.HasProperty("_Metallic"))
-                        mat.SetFloat("_Metallic", 0.45f);
-                    if (mat.HasProperty("_Smoothness"))
-                        mat.SetFloat("_Smoothness", 0.65f);
-                }
-                else if (mat.name.Contains("TankLights"))
-                {
-                    if (mat.HasProperty("_EmissionColor"))
-                    {
-                        mat.EnableKeyword("_EMISSION");
-                        mat.SetColor("_EmissionColor", teamCol * 2.5f);
-                    }
-                }
-                else if (mat.name.Contains("TankGrey"))
-                {
-                    Color gunmetal = new Color(0.35f, 0.38f, 0.42f);
-                    if (mat.HasProperty("_BaseColor"))
-                        mat.SetColor("_BaseColor", gunmetal);
-                    if (mat.HasProperty("_Metallic"))
-                        mat.SetFloat("_Metallic", 0.65f);
-                    if (mat.HasProperty("_Smoothness"))
-                        mat.SetFloat("_Smoothness", 0.50f);
-                }
-            }
-        }
+        Color teamCol = TankDuelData.GetPlayerColor(currentGaragePlayer);
+        ApplyGarageTankColor(teamCol);
 
         // Render the vehicle into the showroom's UI rectangle, independent of the arena camera.
         PrepareGaragePreviewCamera();
@@ -1198,6 +1161,50 @@ public partial class TankDuel : MonoBehaviour
         UpdateGarageStudioLighting(cam, targetWorldPos, teamCol);
         foreach (var light in previewLightingRig.GetComponentsInChildren<Light>())
             light.cullingMask = 1 << GaragePreviewLayer;
+    }
+
+    private void ApplyGarageTankColor(Color teamCol)
+    {
+        if (previewTankInstance == null) return;
+        MeshRenderer[] renderers = previewTankInstance.GetComponentsInChildren<MeshRenderer>();
+        foreach (var rend in renderers)
+        {
+            foreach (var mat in rend.sharedMaterials)
+            {
+                if (mat == null) continue;
+                if (mat.name.Contains("TankColor") || mat.name.Contains("TankRed") ||
+                    (mat.name.Contains("Tank") && !mat.name.Contains("Grey") && !mat.name.Contains("Window") && !mat.name.Contains("Lights")))
+                {
+                    mat.color = teamCol;
+                    if (mat.HasProperty("_BaseColor"))
+                        mat.SetColor("_BaseColor", teamCol);
+                    if (mat.HasProperty("_Color"))
+                        mat.SetColor("_Color", teamCol);
+                    if (mat.HasProperty("_Metallic"))
+                        mat.SetFloat("_Metallic", 0.45f);
+                    if (mat.HasProperty("_Smoothness"))
+                        mat.SetFloat("_Smoothness", 0.65f);
+                }
+                else if (mat.name.Contains("TankLights"))
+                {
+                    if (mat.HasProperty("_EmissionColor"))
+                    {
+                        mat.EnableKeyword("_EMISSION");
+                        mat.SetColor("_EmissionColor", teamCol * 2.5f);
+                    }
+                }
+                else if (mat.name.Contains("TankGrey"))
+                {
+                    Color gunmetal = new Color(0.35f, 0.38f, 0.42f);
+                    if (mat.HasProperty("_BaseColor"))
+                        mat.SetColor("_BaseColor", gunmetal);
+                    if (mat.HasProperty("_Metallic"))
+                        mat.SetFloat("_Metallic", 0.65f);
+                    if (mat.HasProperty("_Smoothness"))
+                        mat.SetFloat("_Smoothness", 0.50f);
+                }
+            }
+        }
     }
 
     private void UpdateGarageStudioLighting(Camera cam, Vector3 tankPos, Color teamColor)
@@ -1516,8 +1523,8 @@ public partial class TankDuel : MonoBehaviour
 
         var players = new[]
         {
-            new GameManager.PlayerData { UsedPrefab = gameManager.m_Tank1Prefab, TankColor = Cyan, ControlIndex = 1, IsComputer = false },
-            new GameManager.PlayerData { UsedPrefab = gameManager.m_Tank2Prefab, TankColor = Amber, ControlIndex = 2, IsComputer = isAI }
+            new GameManager.PlayerData { UsedPrefab = gameManager.m_Tank1Prefab, TankColor = TankDuelData.GetPlayerColor(1), ControlIndex = 1, IsComputer = false },
+            new GameManager.PlayerData { UsedPrefab = gameManager.m_Tank2Prefab, TankColor = TankDuelData.GetOpponentColor(), ControlIndex = 2, IsComputer = isAI }
         };
 
         gameManager.StartGame(players);
@@ -1553,12 +1560,14 @@ public partial class TankDuel : MonoBehaviour
             int p1Idx = Mathf.Clamp(TankDuelData.Player1TankIndex, 0, Archetypes.Length - 1);
             string p1Label = TankDuelLocalization.IsTurkish ? "1. OYUNCU" : "P1";
             p1NameText.text = $"{p1Label}: {Archetypes[p1Idx].GetName()}";
+            p1NameText.color = gameManager.m_SpawnPoints[0].m_PlayerColor;
         }
         if (p2NameText != null)
         {
             int p2Idx = GetOpponentTankIndex();
             string p2Label = TankDuelData.AIModeEnabled ? (TankDuelLocalization.IsTurkish ? "BİLGİSAYAR" : "BOT") : (TankDuelLocalization.IsTurkish ? "2. OYUNCU" : "P2");
             p2NameText.text = $"{p2Label}: {Archetypes[p2Idx].GetName()}";
+            p2NameText.color = gameManager.m_SpawnPoints[1].m_PlayerColor;
         }
 
         if (hud != null)

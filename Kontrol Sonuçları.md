@@ -2,6 +2,11 @@
 
 ## Son güncelleme
 
+- Garaja sekiz ücretsiz tank rengi eklendi; her oyuncunun seçimi ayrı kaydediliyor.
+- Beş tankın sekiz renkle toplam 40 önizleme birleşimi kontrol edildi; renk değiştirirken model yeniden oluşturulmuyor ve altın azalmıyor.
+- 1920 × 1080 garaj görünümünde yazı taşması bulunmadı; ekran görüntüsü güncellendi.
+- Tek oyunculu maçta turuncu gövde ve farklı renkte bot; iki oyunculu maçta turuncu/mor gövdeler ve HUD renkleri doğrulandı.
+- Play yeniden açıldığında renk seçimleri korundu; raunt sıfırlamasında tank renkleri değişmedi.
 - Bot canı kolayda 35, ortada 45, zorda 50 olarak sınırlandı; raunt sıfırlamalarında aynı değerler korundu.
 - Gerçek iki oyunculu modda ağır tankın 75 canı korunuyor.
 - Ana menü ekran görüntüsü mevcut dosyanın üzerine güncellendi.

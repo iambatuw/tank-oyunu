@@ -201,6 +201,49 @@ public static class TankDuelLocalization
 
 public static class TankDuelData
 {
+    private static readonly Color[] TankColors =
+    {
+        new Color(0f, 0.80f, 0.92f),
+        new Color(0.98f, 0.49f, 0.10f),
+        new Color(0.32f, 0.70f, 0.34f),
+        new Color(0.90f, 0.22f, 0.22f),
+        new Color(0.24f, 0.46f, 0.94f),
+        new Color(0.64f, 0.36f, 0.86f),
+        new Color(0.80f, 0.69f, 0.45f),
+        new Color(0.88f, 0.90f, 0.86f)
+    };
+    private static readonly string[] ColorNamesTr =
+        { "Turkuaz", "Turuncu", "Yeşil", "Kırmızı", "Mavi", "Mor", "Kum", "Beyaz" };
+    private static readonly string[] ColorNamesEn =
+        { "Cyan", "Orange", "Green", "Red", "Blue", "Purple", "Sand", "White" };
+
+    public static int TankColorCount => TankColors.Length;
+
+    public static Color GetTankColor(int index) => TankColors[Mathf.Clamp(index, 0, TankColors.Length - 1)];
+
+    public static string GetTankColorName(int index) =>
+        (TankDuelLocalization.IsTurkish ? ColorNamesTr : ColorNamesEn)[Mathf.Clamp(index, 0, TankColors.Length - 1)];
+
+    public static int GetPlayerColorIndex(int player)
+    {
+        int fallback = player == 2 ? 1 : 0;
+        int index = PlayerPrefs.GetInt("TankDuel.P" + player + "Color", fallback);
+        return index >= 0 && index < TankColors.Length ? index : fallback;
+    }
+
+    public static Color GetPlayerColor(int player) => GetTankColor(GetPlayerColorIndex(player));
+
+    public static void SetPlayerColorIndex(int player, int index)
+    {
+        if ((player != 1 && player != 2) || index < 0 || index >= TankColors.Length) return;
+        PlayerPrefs.SetInt("TankDuel.P" + player + "Color", index);
+        PlayerPrefs.Save();
+    }
+
+    public static Color GetOpponentColor() => AIModeEnabled
+        ? GetTankColor(GetPlayerColorIndex(1) == 1 ? 0 : 1)
+        : GetPlayerColor(2);
+
     public static int Coins
     {
         get

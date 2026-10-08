@@ -24,6 +24,8 @@ Depoyu **Code → Download ZIP** ile indirirseniz de ana klasördeki **Oyunu Ba�
 
 Ateş tuşunu basılı tutarak atışı güçlendirebilirsiniz. Garajdan tank seçilir ve satın alımlar altınla yapılır. İki oyunculu modda iki taraf da kendi tankını seçebilir.
 
+Garajdaki **Tank rengi** bölümünden turkuaz, turuncu, yeşil, kırmızı, mavi, mor, kum veya beyaz seçebilirsiniz. Renkler ücretsizdir; seçim otomatik kaydedilir ve tüm tanklarınıza uygulanır. İki oyunculu modda her oyuncunun rengi ayrı kaydedilir.
+
 ## Bilgisayara karşı
 
 | Zorluk | Rakip tank | Can |

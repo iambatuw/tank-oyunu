@@ -26,6 +26,8 @@ public partial class TankDuel
     private static readonly Vector3 GaragePreviewOrigin = new Vector3(2000f, 2000f, 2000f);
     private const int GaragePreviewLayer = 31;
     private readonly List<Material> garagePreviewMaterials = new List<Material>();
+    private Button[] garageColorButtons;
+    private TextMeshProUGUI garageColorNameText;
 
     public static void ApplyMusicPreference()
     {
@@ -389,17 +391,33 @@ public partial class TankDuel
         preview.transform.SetParent(showcase.transform, false);
         var previewRect = preview.GetComponent<RectTransform>();
         previewRect.anchorMin = previewRect.anchorMax = new Vector2(0.5f, 0.5f);
-        previewRect.sizeDelta = new Vector2(560, 560);
-        previewRect.anchoredPosition = new Vector2(0, -3);
+        previewRect.sizeDelta = new Vector2(440, 440);
+        previewRect.anchoredPosition = new Vector2(0, 55);
         garagePreviewImage = preview.GetComponent<RawImage>();
         garagePreviewImage.raycastTarget = false;
         if (garagePreviewTexture != null) garagePreviewImage.texture = garagePreviewTexture;
         UiLabel(showcase.transform, UiCopy("SEÇİLİ ARAÇ", "SELECTED VEHICLE"), 23, UiText,
             new Vector2(0, 316), new Vector2(585, 38), TextAlignmentOptions.Center, true);
         UiRuleLine(showcase.transform, new Vector2(0, 281), 580);
+        UiRuleLine(showcase.transform, new Vector2(0, -178), 580);
+        UiLabel(showcase.transform, UiCopy("TANK RENGİ", "TANK COLOR"), 21, UiMuted,
+            new Vector2(-157, -208), new Vector2(270, 34), bold: true);
+        garageColorNameText = UiLabel(showcase.transform, "", 23, UiText,
+            new Vector2(185, -208), new Vector2(210, 34), TextAlignmentOptions.Right, true);
+        garageColorButtons = new Button[TankDuelData.TankColorCount];
+        for (int i = 0; i < garageColorButtons.Length; i++)
+        {
+            int colorIndex = i;
+            var choice = UiButton(showcase.transform, "Paint " + i, "",
+                new Vector2((i - (garageColorButtons.Length - 1) * 0.5f) * 78, -267),
+                new Vector2(64, 64), UiQuiet, UiText, () => SelectGarageColor(colorIndex));
+            UiBlock(choice.transform, "Color swatch", Vector2.zero, new Vector2(48, 48),
+                TankDuelData.GetTankColor(i));
+            garageColorButtons[i] = choice;
+        }
         UiLabel(showcase.transform,
-            UiCopy("Araç modelini soldan değiştir", "Choose another vehicle on the left"),
-            21, UiMuted, new Vector2(0, -314), new Vector2(590, 37), TextAlignmentOptions.Center);
+            UiCopy("Renk tüm tanklarına uygulanır • Ücretsiz", "Color applies to all your tanks • Free"),
+            20, UiMuted, new Vector2(0, -327), new Vector2(610, 32), TextAlignmentOptions.Center);
 
         var dossier = UiBlock(garagePanel.transform, "Vehicle details", new Vector2(535, -4),
             new Vector2(730, 736), UiSurface);
@@ -427,6 +445,35 @@ public partial class TankDuel
             OnDossierActionClicked, 25);
         dossierActionText = dossierActionButton.GetComponentInChildren<TextMeshProUGUI>();
         garagePanel.SetActive(false);
+    }
+
+    private void UpdateGarageColorChoices()
+    {
+        int selected = TankDuelData.GetPlayerColorIndex(currentGaragePlayer);
+        if (garageColorNameText != null)
+            garageColorNameText.text = TankDuelData.GetTankColorName(selected);
+        if (garageColorButtons == null) return;
+        for (int i = 0; i < garageColorButtons.Length; i++)
+            garageColorButtons[i].GetComponent<Image>().color = i == selected ? UiText : UiQuiet;
+    }
+
+    private void SelectGarageColor(int index)
+    {
+        if (TankDuelData.AIModeEnabled && currentGaragePlayer != 1) return;
+        TankDuelData.SetPlayerColorIndex(currentGaragePlayer, index);
+        UpdateGarageColorChoices();
+        // Reuse the existing preview and materials so repainting does not rebuild the vehicle.
+        Color color = TankDuelData.GetPlayerColor(currentGaragePlayer);
+        ApplyGarageTankColor(color);
+        if (previewPedestalRingInstance != null)
+        {
+            var material = previewPedestalRingInstance.GetComponent<Renderer>().material;
+            material.color = color;
+            if (material.HasProperty("_BaseColor")) material.SetColor("_BaseColor", color);
+            if (material.HasProperty("_EmissionColor")) material.SetColor("_EmissionColor", color * 0.15f);
+        }
+        if (garagePreviewCamera != null)
+            UpdateGarageStudioLighting(garagePreviewCamera, GaragePreviewOrigin, color);
     }
 
     private void PrepareGaragePreviewCamera()
