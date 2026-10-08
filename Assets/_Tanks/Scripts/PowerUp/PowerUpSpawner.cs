@@ -27,14 +27,28 @@ namespace Tanks.Complete
                 {
                     int randomNumber = (first + offset) % m_PowerUps.Length;
                     if (m_PowerUps[randomNumber] == null) continue;
-                    Vector3 positionToSpawn = transform.position;
-                    positionToSpawn.y = 1.09f;
+                    Vector3 positionToSpawn = GetSpawnPosition();
                     PowerUp m_SpawnedPowerup = Instantiate(m_PowerUps[randomNumber], positionToSpawn, Quaternion.identity);
                     if (m_SpawnedPowerup != null)
                         m_SpawnedPowerup.SetSpawner(this);
                     break;
                 }
             }
+        }
+
+        private Vector3 GetSpawnPosition()
+        {
+            Vector3 position = transform.position;
+            // Arena ground heights differ; never place pickups at a fixed world-space Y.
+            RaycastHit ground;
+            int groundMask = Physics.DefaultRaycastLayers & ~LayerMask.GetMask("Players");
+            if (Physics.Raycast(position + Vector3.up * 1000f, Vector3.down, out ground,
+                2000f, groundMask, QueryTriggerInteraction.Ignore))
+                position = ground.point;
+            UnityEngine.AI.NavMeshHit walkable;
+            if (UnityEngine.AI.NavMesh.SamplePosition(position, out walkable, 3f, UnityEngine.AI.NavMesh.AllAreas))
+                position = walkable.position;
+            return position + Vector3.up * 1.09f;
         }
 
         // Called when a power up is collected, starting a respawn timer.

@@ -19,6 +19,10 @@ namespace Tanks.Complete
         private bool m_ShieldApplied;
         private bool m_InvincibilityApplied;
 
+        public bool CanCollectPowerUp => isActiveAndEnabled && !m_HasActivePowerUp &&
+            m_TankHealth != null && m_TankHealth.CurrentHealth > 0f;
+        public float ShootingCooldownMultiplier => Mathf.Max(0.05f, m_ActiveCooldownFactor);
+
         private void Awake()
         {
             // Get references to the tank's movement, shooting, and health components

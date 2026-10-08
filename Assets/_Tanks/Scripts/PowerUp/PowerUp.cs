@@ -37,6 +37,25 @@ namespace Tanks.Complete
 
         private PowerUpSpawner m_Spawner;               // Reference to the spawner that instantiated this PowerUp
         private bool m_Collected;
+        private static readonly System.Collections.Generic.List<PowerUp> s_ActivePowerUps =
+            new System.Collections.Generic.List<PowerUp>();
+
+        public static System.Collections.Generic.IReadOnlyList<PowerUp> ActivePowerUps => s_ActivePowerUps;
+        public PowerUpType Type => m_PowerUpType;
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetActivePowerUps() => s_ActivePowerUps.Clear();
+
+        private void OnEnable()
+        {
+            m_Collected = false;
+            if (!s_ActivePowerUps.Contains(this)) s_ActivePowerUps.Add(this);
+        }
+
+        private void OnDisable() => s_ActivePowerUps.Remove(this);
+
+        public bool CanBeCollectedBy(PowerUpDetector detector) =>
+            isActiveAndEnabled && !m_Collected && detector != null && detector.CanCollectPowerUp;
 
         private void Update()
         {
@@ -47,15 +66,20 @@ namespace Tanks.Complete
 
         private void OnTriggerEnter(Collider other)
         {
-            if (other.gameObject.layer == LayerMask.NameToLayer("Players"))
+            // Tank colliders can live on children; resolve the actual tank through its rigidbody.
+            var detector = other.attachedRigidbody != null
+                ? other.attachedRigidbody.GetComponent<PowerUpDetector>()
+                : other.GetComponentInParent<PowerUpDetector>();
+            if (detector != null && detector.gameObject.layer == LayerMask.NameToLayer("Players"))
             {
                 // Reference to the PowerUpDetector component of the tank.
-                PowerUpDetector m_PowerUpDetector = other.gameObject.GetComponent<PowerUpDetector>();
+                PowerUpDetector m_PowerUpDetector = detector;
 
                 // Checks that the tank has not picked up other power up
-                if (m_PowerUpDetector != null && !m_PowerUpDetector.m_HasActivePowerUp && !m_Collected)
+                if (CanBeCollectedBy(m_PowerUpDetector))
                 {
                     m_Collected = true;
+                    s_ActivePowerUps.Remove(this);
                     // The power up reduces is a shield
                     if (m_PowerUpType == PowerUpType.DamageReduction)
                         m_PowerUpDetector.PickUpShield(m_DamageReduction, m_DurationTime);
@@ -92,7 +116,7 @@ namespace Tanks.Complete
                     // Destroys the Power Up
                     Destroy(gameObject);
 
-                    TankMovement movement = other.gameObject.GetComponent<TankMovement>();
+                    TankMovement movement = detector.GetComponent<TankMovement>();
                     string playerLabel = (movement != null && movement.m_PlayerNumber == 1) ?
                         (TankDuelLocalization.IsTurkish ? "1. OYUNCU" : "P1") :
                         (TankDuelData.AIModeEnabled ? (TankDuelLocalization.IsTurkish ? "BİLGİSAYAR" : "BOT") : (TankDuelLocalization.IsTurkish ? "2. OYUNCU" : "P2"));
@@ -110,6 +134,8 @@ namespace Tanks.Complete
                 }
             }
         }
+
+        private void OnTriggerStay(Collider other) => OnTriggerEnter(other);
 
         // Sets m_Spawner
         public void SetSpawner(PowerUpSpawner spawner)

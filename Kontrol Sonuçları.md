@@ -2,6 +2,12 @@
 
 ## Son güncelleme
 
+- Botlar yakındaki ulaşılabilir güçlendirmeleri hedefleyip topluyor; canları azaldığında iyileştirmeye öncelik veriyor.
+- Altı güçlendirme gerçek botta ana ve alt nesne çarpıştırıcılarıyla toplam 12 kez denendi; etkilerin uygulandığı doğrulandı.
+- Bot beş birim uzaklıktaki hız güçlendirmesine yürüyerek ulaştı; fizik çarpışmasıyla topladı ve hızı 9'dan 14'e çıktı.
+- Tam canla kalkan, az canla iyileştirme seçildi; başka biri güçlendirmeyi alınca bot savaş davranışına döndü.
+- Güçlendirmelerin sabit dünya yüksekliğinde doğması düzeltildi. Orman, çöl ve ay haritalarının toplam 12 doğma noktası gezinme ağı üzerinde erişilebilir bulundu.
+- Seri atış etkisi botun karar verdiği atış bekleme süresini de kısaltıyor; iyileştirme mevcut bot can sınırını aşmıyor.
 - Garaja sekiz ücretsiz tank rengi eklendi; her oyuncunun seçimi ayrı kaydediliyor.
 - Beş tankın sekiz renkle toplam 40 önizleme birleşimi kontrol edildi; renk değiştirirken model yeniden oluşturulmuyor ve altın azalmıyor.
 - 1920 × 1080 garaj görünümünde yazı taşması bulunmadı; ekran görüntüsü güncellendi.

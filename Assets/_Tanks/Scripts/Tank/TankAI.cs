@@ -16,11 +16,19 @@ namespace Tanks.Complete
         enum State
         {
             Seek,
-            Flee
+            Flee,
+            Collect
         }
     
         private TankMovement m_Movement;                // Reference to the movement script
         private TankShooting m_Shooting;                // Reference to the shooting script
+        private PowerUpDetector m_PowerUpDetector;
+        private TankHealth m_Health;
+        private PowerUp m_PowerUpTarget;
+        private float m_PowerUpSearchTimer;
+        private float m_CollectTimer;
+        private const float PowerUpSearchInterval = 0.75f;
+        private const float PowerUpSearchRadius = 12f;
         
         private float m_PathfindTime = 0.5f;            // Only trigger a pathfind after this time, to not degrade performance
         private float m_PathfindTimer = 0.0f;           // The time until the next pathfind call
@@ -58,6 +66,8 @@ namespace Tanks.Complete
             
             m_Movement = GetComponent<TankMovement>();
             m_Shooting = GetComponent<TankShooting>();
+            m_PowerUpDetector = GetComponent<PowerUpDetector>();
+            m_Health = GetComponent<TankHealth>();
 
             // ensure that both movement and shooting script are set in "computer controlled" mode
             if (m_Movement != null) m_Movement.m_IsComputerControlled = true;
@@ -124,16 +134,38 @@ namespace Tanks.Complete
             enabled = false;
         }
 
+        private void OnDisable()
+        {
+            m_PowerUpTarget = null;
+            m_CurrentState = State.Seek;
+            m_CurrentTarget = null;
+            m_CurrentPath = null;
+            m_CurrentCorner = 0;
+            m_IsMoving = false;
+            m_PathfindTimer = m_PathfindTime;
+            m_PowerUpSearchTimer = 0f;
+            m_CollectTimer = 0f;
+            m_ShotCooldown = 0f;
+            m_TimeSinceLastTargetMove = m_TimeCloseToTarget = 0f;
+        }
+
         void Update()
         {
             if (Time.timeScale <= 0f) return;
             // If there is a cooldown active, we decrement it by the time elapsed since last frame
             if(m_ShotCooldown > 0)
-                m_ShotCooldown -= Time.deltaTime;
+                m_ShotCooldown -= Time.deltaTime /
+                    (m_PowerUpDetector != null ? m_PowerUpDetector.ShootingCooldownMultiplier : 1f);
             
             // increment the time since last pathfind. The SeekUpdate will check if it goes over the pathfinding time
             // and if it need to trigger a new pathfinding
             m_PathfindTimer += Time.deltaTime;
+            m_PowerUpSearchTimer += Time.deltaTime;
+            if (m_CurrentState != State.Collect && m_PowerUpSearchTimer >= PowerUpSearchInterval)
+            {
+                m_PowerUpSearchTimer = 0f;
+                if (m_Shooting == null || !m_Shooting.IsCharging) TrySeekPowerUp();
+            }
 
             switch (m_CurrentState)
             {
@@ -143,7 +175,74 @@ namespace Tanks.Complete
                 case State.Flee:
                     FleeUpdate();
                     break;
+                case State.Collect:
+                    CollectUpdate();
+                    break;
             }
+        }
+
+        private bool TrySeekPowerUp()
+        {
+            if (m_PowerUpDetector == null || !m_PowerUpDetector.CanCollectPowerUp) return false;
+            NavMeshHit start;
+            if (!NavMesh.SamplePosition(transform.position, out start, 3f, NavMesh.AllAreas)) return false;
+
+            PowerUp best = null;
+            NavMeshPath bestPath = null;
+            float bestScore = float.MaxValue;
+            var pickups = PowerUp.ActivePowerUps;
+            for (int i = 0; i < pickups.Count; i++)
+            {
+                var pickup = pickups[i];
+                if (pickup == null || !pickup.CanBeCollectedBy(m_PowerUpDetector)) continue;
+                bool healing = pickup.Type == PowerUp.PowerUpType.Healing;
+                if (healing && (m_Health == null || m_Health.CurrentHealth >= m_Health.MaxHealth)) continue;
+                Vector3 offset = pickup.transform.position - transform.position;
+                offset.y = 0f;
+                if (offset.sqrMagnitude > PowerUpSearchRadius * PowerUpSearchRadius) continue;
+                NavMeshHit destination;
+                if (!NavMesh.SamplePosition(pickup.transform.position, out destination, 2f, NavMesh.AllAreas)) continue;
+                Vector3 pickupOffset = destination.position - pickup.transform.position;
+                pickupOffset.y = 0f;
+                if (pickupOffset.sqrMagnitude > 1f) continue;
+                var path = new NavMeshPath();
+                if (!NavMesh.CalculatePath(start.position, destination.position, NavMesh.AllAreas, path) ||
+                    path.status != NavMeshPathStatus.PathComplete || path.corners.Length < 2) continue;
+                float length = GetPathLength(path);
+                if (length > PowerUpSearchRadius * 1.5f) continue;
+                float score = healing && m_Health.CurrentHealth < m_Health.MaxHealth * 0.7f ? length * 0.45f : length;
+                if (score >= bestScore) continue;
+                bestScore = score;
+                best = pickup;
+                bestPath = path;
+            }
+            if (best == null) return false;
+            m_PowerUpTarget = best;
+            m_CurrentPath = bestPath;
+            m_CurrentCorner = 1;
+            m_CurrentState = State.Collect;
+            m_CollectTimer = 0f;
+            m_PathfindTimer = 0f;
+            m_IsMoving = true;
+            return true;
+        }
+
+        private void CollectUpdate()
+        {
+            m_CollectTimer += Time.deltaTime;
+            if (m_PowerUpTarget == null || !m_PowerUpTarget.CanBeCollectedBy(m_PowerUpDetector) ||
+                m_CollectTimer >= 6f || m_CurrentPath == null)
+            {
+                m_PowerUpTarget = null;
+                m_CurrentState = State.Seek;
+                m_CurrentPath = null;
+                m_IsMoving = false;
+                m_PathfindTimer = m_PathfindTime;
+                // Give fighting a turn before looking for another pickup.
+                m_PowerUpSearchTimer = -1.5f;
+                return;
+            }
+            m_IsMoving = true;
         }
 
         void SeekUpdate()
