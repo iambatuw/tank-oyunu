@@ -24,5 +24,7 @@
 ## Derleme
 
 - Windows 64 bit derlemesi başarılı: 0 hata, yaklaşık 178 MB.
+- Oluşturulan Windows paketi açılış kontrolünü istisna hatası olmadan geçti.
+- Tam Unity proje arşivi ayrı bir klasöre açıldı. Unity gerekli paketleri indirdi, varlıkları içe aktardı ve hem oyun hem editör kodlarını 0 derleme hatasıyla derledi; işlem 0 çıkış koduyla tamamlandı.
 - Unity'nin eski proje ayarı biçimleri ve geliştirme paketleri için uyarıları hâlâ mevcut.
 - Bu kontroller belirli bir okul bilgisayarının performansını veya uygulama çalıştırma izinlerini ölçmez.
