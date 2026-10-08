@@ -99,7 +99,8 @@ public partial class TankDuel
     private static string UiCopy(string turkish, string english) =>
         TankDuelLocalization.IsTurkish ? turkish : english;
 
-    private string GetCoinsLabel() => TankDuelLocalization.Get("COINS") + ": " + TankDuelData.Coins;
+    private string GetCoinsLabel() => TankDuelData.Coins.ToString("N0",
+        System.Globalization.CultureInfo.GetCultureInfo(TankDuelLocalization.IsTurkish ? "tr-TR" : "en-US"));
 
     private static Sprite RoundedSprite()
     {
@@ -197,12 +198,15 @@ public partial class TankDuel
         var rect = topBar.GetComponent<RectTransform>();
         rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
         rect.pivot = new Vector2(0.5f, 0.5f);
-        rect.anchoredPosition = new Vector2(744, 440);
-        rect.sizeDelta = new Vector2(255, 68);
-        UiBlock(topBar.transform, "Currency plate", Vector2.zero, new Vector2(255, 68), UiRaised);
-        UiBlock(topBar.transform, "Coin mark", new Vector2(-93, 0), new Vector2(28, 28), UiAccent);
-        coinsText = UiLabel(topBar.transform, GetCoinsLabel(), 24, UiText,
-            new Vector2(24, 0), new Vector2(175, 46), TextAlignmentOptions.Center, true);
+        rect.sizeDelta = new Vector2(236, 76);
+        UiBlock(topBar.transform, "Currency plate", Vector2.zero, rect.sizeDelta, UiRaised);
+        UiLabel(topBar.transform, "●", 42, UiAccent, new Vector2(-81, 0),
+            new Vector2(44, 52), TextAlignmentOptions.Center);
+        UiLabel(topBar.transform, TankDuelLocalization.Get("COINS"), 16, UiMuted,
+            new Vector2(20, 20), new Vector2(142, 24), bold: true);
+        coinsText = UiLabel(topBar.transform, GetCoinsLabel(), 28, UiText,
+            new Vector2(20, -10), new Vector2(142, 38), bold: true);
+        coinsText.fontSizeMin = 14f;
     }
 
     private void BuildMainMenuPanel()
@@ -231,9 +235,9 @@ public partial class TankDuel
         var card = UiBlock(menuPanel.transform, "Match setup", new Vector2(429, 0),
             new Vector2(900, 900), UiSurface);
         UiLabel(card.transform, UiCopy("MAÇ KURULUMU", "MATCH SETUP"), 35, UiText,
-            new Vector2(-95, 376), new Vector2(610, 52), bold: true);
+            new Vector2(-141, 376), new Vector2(518, 52), bold: true);
         UiLabel(card.transform, UiCopy("Nasıl oynamak istersin?", "How would you like to play?"),
-            23, UiMuted, new Vector2(-95, 333), new Vector2(610, 35));
+            23, UiMuted, new Vector2(-141, 333), new Vector2(518, 35));
         UiRuleLine(card.transform, new Vector2(0, 299), 800);
 
         UiLabel(card.transform, UiCopy("OYUN MODU", "GAME MODE"), 19, UiMuted,

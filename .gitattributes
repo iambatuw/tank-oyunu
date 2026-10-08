@@ -5,3 +5,4 @@
 *.asset binary
 *.png binary
 Build/** binary
+Licenses/** -whitespace

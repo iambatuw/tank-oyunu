@@ -1327,7 +1327,17 @@ public partial class TankDuel : MonoBehaviour
         if (hud != null) hud.SetActive(false);
         if (topBar != null)
         {
-            topBar.SetActive(panel == menuPanel || panel == garagePanel);
+            bool showCurrency = panel == menuPanel || panel == garagePanel;
+            if (showCurrency)
+            {
+                var host = panel == menuPanel ? menuPanel.transform.Find("Match setup") :
+                    garagePanel.transform.Find("Garage navigation");
+                topBar.transform.SetParent(host, false);
+                topBar.GetComponent<RectTransform>().anchoredPosition =
+                    panel == menuPanel ? new Vector2(282, 362) : new Vector2(744, 0);
+                coinsText.text = GetCoinsLabel();
+            }
+            topBar.SetActive(showCurrency);
             topBar.transform.SetAsLastSibling();
         }
 
@@ -1511,6 +1521,19 @@ public partial class TankDuel : MonoBehaviour
         started = true;
         cachedHealth[0] = null;
         cachedHealth[1] = null;
+
+        if (isAI && hud != null)
+        {
+            var marker = hud.transform.parent.GetComponentInChildren<DuelOpponentMarker>(true);
+            if (marker == null)
+            {
+                var markerObject = new GameObject("Opponent direction", typeof(RectTransform));
+                markerObject.transform.SetParent(hud.transform.parent, false);
+                marker = markerObject.AddComponent<DuelOpponentMarker>();
+            }
+            marker.Configure(Camera.main, gameManager.m_SpawnPoints[1].m_Instance.transform,
+                hud, bodyFont);
+        }
 
         // Apply asymmetric vehicle archetype performance stats
         ApplyArchetypesToSpawnedTanks();

@@ -12,6 +12,18 @@
 *.slnx
 *.user
 
+# Kişisel dosyalar ve kimlik bilgileri
+.env
+.env.*
+*.pem
+*.key
+*.pfx
+*.p12
+credentials.json
+
+# Lisanslı varlıkları içeren, yalnızca kişisel kullanım için yerel proje arşivi
+/Export/
+
 # Tanks! Asset Store paketinin ham dosyaları ve bu paketten türetilmiş sahneler
 /Assets/_Tanks/
 /Assets/_Tanks.meta
