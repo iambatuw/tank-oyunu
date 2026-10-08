@@ -1,0 +1,32 @@
+# Unity tarafından yeniden oluşturulan klasörler
+/Library/
+/Temp/
+/Obj/
+/Logs/
+/UserSettings/
+/.vs/
+/.vscode/
+/.claude/
+*.csproj
+*.sln
+*.slnx
+*.user
+
+# Tanks! Asset Store paketinin ham dosyaları ve bu paketten türetilmiş sahneler
+/Assets/_Tanks/
+/Assets/_Tanks.meta
+/Assets/Scenes/
+/Assets/Scenes.meta
+
+# Unity MCP paketi manifest üzerinden edinilir
+/Packages/com.coplaydev.unity-mcp/
+
+# Oyuncuya dağıtılmayan Unity yedekleri
+/Build/TankDuel_BackUpThisFolder_ButDontShipItWithYourGame/
+
+# Geçici görsel denemeleri
+/UI-Preview/main-1080p.png
+/UI-Preview/garage-verified.png
+/UI-Preview/match-round-1080p.png
+/UI-Preview/solo-camera-1080p.png
+/UI-Preview/solo-camera-centered.png
