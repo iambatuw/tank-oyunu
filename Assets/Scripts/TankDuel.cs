@@ -612,6 +612,11 @@ public partial class TankDuel : MonoBehaviour
             : Mathf.Clamp(TankDuelData.Player2TankIndex, 0, Archetypes.Length - 1);
     }
 
+    private static float GetBotMaxHealth()
+    {
+        return TankDuelData.AIDifficulty == 0 ? 35f : TankDuelData.AIDifficulty == 1 ? 45f : 50f;
+    }
+
     private void ApplyArchetypesToSpawnedTanks()
     {
         if (gameManager == null || gameManager.m_SpawnPoints == null) return;
@@ -625,11 +630,12 @@ public partial class TankDuel : MonoBehaviour
         }
         if (gameManager.m_SpawnPoints.Length > 1 && gameManager.m_SpawnPoints[1].m_Instance != null)
         {
-            ApplyStatsToTank(gameManager.m_SpawnPoints[1].m_Instance, Archetypes[p2Tank]);
+            ApplyStatsToTank(gameManager.m_SpawnPoints[1].m_Instance, Archetypes[p2Tank],
+                TankDuelData.AIModeEnabled ? GetBotMaxHealth() : Archetypes[p2Tank].health);
         }
     }
 
-    private void ApplyStatsToTank(GameObject tankGo, TankArchetype arch)
+    private void ApplyStatsToTank(GameObject tankGo, TankArchetype arch, float healthOverride = -1f)
     {
         if (tankGo == null) return;
 
@@ -650,7 +656,7 @@ public partial class TankDuel : MonoBehaviour
         var health = tankGo.GetComponent<TankHealth>();
         if (health != null)
         {
-            health.SetCustomMaxHealth(arch.health);
+            health.SetCustomMaxHealth(healthOverride > 0f ? healthOverride : arch.health);
         }
     }
 
@@ -1441,7 +1447,11 @@ public partial class TankDuel : MonoBehaviour
         ccr.sizeDelta = new Vector2(260, 95); ccr.anchoredPosition = new Vector2(0, 0);
         centerCard.GetComponent<Image>().color = new Color(0.04f, 0.07f, 0.10f, 0.98f);
 
-        timerText = Label(centerCard.transform, "90", 48, OffWhite, new Vector2(0, 14), new Vector2(240, 52), true);
+        timerText = Label(centerCard.transform, "90", 42, OffWhite, new Vector2(0, 18), new Vector2(240, 52), true);
+        timerText.enableAutoSizing = true;
+        timerText.fontSizeMin = 36;
+        timerText.fontSizeMax = 42;
+        timerText.textWrappingMode = TextWrappingModes.NoWrap;
         roundText = Label(centerCard.transform, $"{TankDuelLocalization.Get("ROUND")} 1 / 5", 15, Muted, new Vector2(0, -16), new Vector2(240, 24));
         scoreText = Label(centerCard.transform, "0   -   0", 17, Cyan, new Vector2(0, -32), new Vector2(240, 24));
 

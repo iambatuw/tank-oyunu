@@ -1,5 +1,13 @@
 # Kontrol sonuçları — 8 Ekim 2026
 
+## Son güncelleme
+
+- Bot canı kolayda 35, ortada 45, zorda 50 olarak sınırlandı; raunt sıfırlamalarında aynı değerler korundu.
+- Gerçek iki oyunculu modda ağır tankın 75 canı korunuyor.
+- Ana menü ekran görüntüsü mevcut dosyanın üzerine güncellendi.
+- Süre sayacının yazı alanı ve boyutu taşmayı önleyecek şekilde düzeltildi.
+- Sahneler, tanklar, haritalar ve temel oyun kaynakları GitHub yüklemesine dahil edildi.
+
 ## Menü ve altın
 
 - Altın göstergesi ana menüde maç kurulum kartının, garajda gezinme çubuğunun içine yerleştirildi.

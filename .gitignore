@@ -21,14 +21,8 @@
 *.p12
 credentials.json
 
-# Lisanslı varlıkları içeren, yalnızca kişisel kullanım için yerel proje arşivi
+# Yerel dışa aktarım dosyaları
 /Export/
-
-# Tanks! Asset Store paketinin ham dosyaları ve bu paketten türetilmiş sahneler
-/Assets/_Tanks/
-/Assets/_Tanks.meta
-/Assets/Scenes/
-/Assets/Scenes.meta
 
 # Unity MCP paketi manifest üzerinden edinilir
 /Packages/com.coplaydev.unity-mcp/

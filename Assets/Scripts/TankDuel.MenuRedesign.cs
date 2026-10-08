@@ -320,10 +320,10 @@ public partial class TankDuel
         for (int i = 0; i < diffButtons.Length; i++)
             PaintChoice(diffButtons[i], diffButtonLabels[i], i == TankDuelData.AIDifficulty, UiSage);
         diffHintLabel.text = TankDuelData.AIDifficulty == 0 ?
-            UiCopy("Sakin tempo, uzun atış aralığı", "Calm pace, slower shots") :
+            UiCopy("35 can • Sakin tempo, uzun atış aralığı", "35 health • Calm pace, slower shots") :
             TankDuelData.AIDifficulty == 1 ?
-                UiCopy("Dengeli hız ve isabet", "Balanced speed and accuracy") :
-                UiCopy("Hızlı, agresif rakip", "Fast, aggressive opponent");
+                UiCopy("45 can • Dengeli hız ve isabet", "45 health • Balanced speed and accuracy") :
+                UiCopy("50 can • Hızlı, agresif rakip", "50 health • Fast, aggressive opponent");
     }
 
     private void RefreshArenaChoices()

@@ -6,3 +6,5 @@
 *.png binary
 Build/** binary
 Licenses/** -whitespace
+Assets/_Tanks/** -whitespace
+*.unity text eol=lf -whitespace

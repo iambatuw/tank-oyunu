@@ -1,16 +1,18 @@
 # Tank Düellosu
 
-Tank Düellosu, aynı bilgisayarda iki kişiyle veya bilgisayara karşı oynanan bir tank savaş oyunudur. Orman, çöl ve ay üssü arenaları; beş farklı tank; garaj, altın ve güçlendirmeler içerir.
+Tank Düellosu, aynı bilgisayarda iki kişiyle veya bilgisayara karşı oynanan bir tank savaş oyunudur. Üç arena, beş tank, garaj, altın ve güçlendirmeler içerir.
 
 ![Ana menü](UI-Preview/main-currency-fixed.png)
 
-## Oyuna başla
+## İndir ve oyna
 
-1. GitHub sayfasındaki **Code → Download ZIP** seçeneğiyle dosyaları indirin.
-2. ZIP dosyasının **tamamını** bir klasöre çıkartın.
-3. Ana klasördeki **Oyunu Başlat.cmd** dosyasına çift tıklayın. İsterseniz doğrudan `Build/TankDuel.exe` dosyasını da açabilirsiniz.
+1. [Releases bölümünden](https://github.com/iambatuw/tank-fight/releases) **TankDuellosu-Windows.zip** dosyasını indirin.
+2. ZIP dosyasının tamamını bir klasöre çıkartın.
+3. **Oyunu Başlat.cmd** dosyasına çift tıklayın. Doğrudan `Build/TankDuel.exe` dosyasını da açabilirsiniz.
 
-Oynamak için Unity, Git veya bir geliştirici hesabı gerekmez. Windows 10/11, 64 bit bilgisayar kullanın. Okul bilgisayarına klasörün tamamını kopyalayarak oyun oynanabilir; `Build` klasöründeki veri dosyaları ve `.dll` dosyaları da gereklidir. Yalnızca `.exe` dosyasını ayırırsanız oyun açılmaz. Ayarlar bölümünden grafik düzeyini değiştirebilirsiniz. Bilgisayarın uygulama çalıştırma kısıtlamaları varsa okulun yetkili kişisinden yardım alın.
+Windows 10/11, 64 bit bilgisayarda oynanır. Unity kurulumu gerekmez. EXE, yanındaki `TankDuel_Data`, `UnityPlayer.dll` ve diğer oyun dosyalarıyla birlikte çalışır. Releases içindeki ayrı EXE, mevcut `Build/TankDuel.exe` dosyasını güncellemek içindir; ilk indirmede ZIP paketini kullanın.
+
+Depoyu **Code → Download ZIP** ile indirirseniz de ana klasördeki **Oyunu Başlat.cmd** dosyasından oynayabilirsiniz.
 
 ## Kontroller
 
@@ -20,52 +22,57 @@ Oynamak için Unity, Git veya bir geliştirici hesabı gerekmez. Windows 10/11, 
 | Ateş et | Boşluk | Enter |
 | Duraklat / devam et | Esc | Esc |
 
-Ateş tuşunu basılı tutarak atışı güçlendirebilirsiniz. Tek oyunculu modda ikinci tankı bilgisayar yönetir. Kolay zorlukta standart, orta zorlukta orta, zor zorlukta ağır tank kullanır. İki oyunculu modda ikinci oyuncu da garajdan tank seçebilir. Garajdaki satın alımlar altınla yapılır ve seçimler kaydedilir.
+Ateş tuşunu basılı tutarak atışı güçlendirebilirsiniz. Garajdan tank seçilir ve satın alımlar altınla yapılır. İki oyunculu modda iki taraf da kendi tankını seçebilir.
 
-## Ekranlar
+## Bilgisayara karşı
 
-| Garaj | Ayarlar |
-| --- | --- |
-| ![Garaj](UI-Preview/garage-currency-fixed.png) | ![Ayarlar](UI-Preview/settings-1080p.png) |
+| Zorluk | Rakip tank | Can |
+| --- | --- | --- |
+| Kolay | Standart | 35 |
+| Orta | Orta | 45 |
+| Zor | Ağır | 50 |
 
-Tek oyunculu modda kamera oyuncunun tankını yakından takip eder. Rakip uzaklaştığında tankları küçülten bir uzaklaştırma yerine ekran kenarında rakibin yönü gösterilir. İki oyunculu modda iki tank birlikte kadraja alınır. Üstteki can ve süre göstergeleri için boşluk bırakılır. Raunt duyuruları, arka plandan ayrılan bir panelde gösterilir.
+Bot tankı zorluğa göre seçilir. Bot için garajdan alışveriş yapılmaz. Zorluk arttıkça hareket ve nişan alma davranışı güçlenir.
 
-![Oyun içi görünüm](UI-Preview/gameplay-player-follow.png)
+## Kamera ve vuruşlar
 
-## Zırh ve vuruş yönü
+Tek oyunculu modda kamera oyuncunun tankını yakından takip eder. Ekran dışındaki rakibin yönü kenarda gösterilir. İki oyunculu modda iki tank birlikte kadraja alınır.
 
-Doğrudan mermi çarpışmalarında tankın vurulan gövde yönü hasarı değiştirir:
-
-| Vuruş | Hasar çarpanı |
+| Doğrudan vuruş | Hasar çarpanı |
 | --- | --- |
 | Ön zırh | ×0,75 |
 | Yan gövde | ×1,00 |
 | Arka gövde | ×1,50 |
 
-Patlama hasarı mesafeyle azalır. Merminin doğrudan çarpmadığı, yalnızca patlamaya yakın olan tanklara yön çarpanı uygulanmaz. Kalkan ve geçici dokunulmazlık etkileri ayrıca geçerlidir.
+Yakındaki patlama hasarı mesafeyle azalır. Kalkan ve geçici dokunulmazlık ayrıca geçerlidir.
 
-![Raunt duyurusu](UI-Preview/round-message-1080p.png)
+![Oyun içi görünüm](UI-Preview/gameplay-player-follow.png)
 
-## Geliştirme ve lisans
+## Garaj ve ayarlar
 
-Proje Unity **6000.6.4f1** ile geliştirilmiştir. Bu herkese açık depoda oyunun Windows sürümü, özgün menü ve oyun yönetimi kodları, ayarlar ve ekran görüntüleri bulunur. Projede kullanılan **Tanks!** içeriğinin ham varlıkları ve bu içeriğe dayanan sahneler, Unity Asset Store lisansı nedeniyle depoya konmamıştır. Bu nedenle depodaki kaynaklar tek başına yeniden derlenebilir tam bir Unity projesi değildir. Geliştirme için ilgili Tanks! içeriğini kendi lisansınızla edinmeniz ve yerel proje dosyalarına eklemeniz gerekir.
+| Garaj | Ayarlar |
+| --- | --- |
+| ![Garaj](UI-Preview/garage-currency-fixed.png) | ![Ayarlar](UI-Preview/settings-1080p.png) |
 
-Depodaki MIT lisansı yalnızca bu projeye ait özgün kaynaklar için geçerlidir; Tanks! varlıklarının veya diğer üçüncü taraf içeriklerin lisansını değiştirmez. Üçüncü taraf lisans bilgileri yerel Unity projesindeki `Assets/_Tanks/Tanks!_Third-PartyNotice.txt` dosyasında bulunur.
+## Unity projesini aç
 
-### Tam Unity projesini başka bilgisayara taşıma
+Proje Unity **6000.6.4f1** ile geliştirilmiştir. Sahneler, modeller, oyun kodları ve proje ayarları depoda bulunur.
 
-Yerel projede hazırlanan `Export/Tank Düellosu Unity Projesi.zip`, `Assets`, `Packages` ve `ProjectSettings` klasörlerini, üç arena sahnesini ve kullanılan oyun kodlarını içerir. Bu arşiv lisanslı ham varlıkları da içerdiği için herkese açık GitHub deposuna yüklenmez. Kendi bilgisayarlarınız arasında taşımak için kullanabilirsiniz.
+1. Depoyu indirin ve ZIP dosyasını çıkartın.
+2. Unity Hub üzerinden çıkartılan ana klasörü proje olarak ekleyin.
+3. Unity **6000.6.4f1** ile açın; ilk açılışta paketlerin yüklenmesini bekleyin.
+4. `Assets/Scenes/Duel_Jungle.unity` sahnesini açıp **Play** düğmesine basın.
 
-Arşivi çıkartın, Unity Hub üzerinden çıkartılan klasörü proje olarak ekleyin ve Unity **6000.6.4f1** ile açın. İlk açılışta Unity gerekli paketleri internetten indirir; ardından `Assets/Scenes/Duel_Jungle.unity` sahnesini açıp oynatın. Windows için yeniden derlemek isterseniz Windows Build Support kurulu olmalıdır. Arşivde geliştirme önbellekleri, kişisel oturum dosyaları ve Unity MCP bağlantısı bulunmaz.
+Diğer sahneler `Duel_Desert` ve `Duel_Moon` arenalarıdır. Windows oyunu oluşturmak için Unity kurulumunda Windows Build Support bulunmalıdır.
 
-### Dosyalar
+## Dosyalar
 
 | Klasör | İçerik |
 | --- | --- |
-| `Build` | Unity kurulmadan çalıştırılabilen Windows oyunu |
-| `Assets/Scripts` | Özgün menü, kamera kadrajı, rakip göstergesi ve zırh hesabı kodları |
+| `Build` | Windows oyunu |
+| `Assets/Scenes` | Üç oynanabilir arena |
+| `Assets/Scripts` | Menü, kamera, rakip göstergesi ve oyun yönetimi |
+| `Assets/_Tanks` | Tanklar, haritalar, sesler ve temel oyun bileşenleri |
 | `Assets/Editor` | Sahne hazırlama ve derleme araçları |
-| `ProjectSettings`, `Packages` | Unity sürümü, paket ve proje ayarları |
-| `Licenses` | Yazı tipi ve üçüncü taraf lisans bildirimleri |
-
-Inter yazı tipi SIL Open Font License ile dağıtılır; [lisans metni](Licenses/Inter-OFL.txt) pakete eklenmiştir. Günlüğe kaydedilen oturum bilgileri, anahtarlar, `.env` dosyaları ve yerel Unity proje arşivi GitHub yüklemesine dahil edilmez.
+| `ProjectSettings`, `Packages` | Unity proje ve paket ayarları |
+| `UI-Preview` | Güncel ekran görüntüleri |
