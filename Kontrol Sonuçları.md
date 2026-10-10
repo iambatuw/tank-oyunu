@@ -1,6 +1,16 @@
-# Kontrol sonuçları — 8 Ekim 2026
+# Kontrol sonuçları — 10 Ekim 2026
 
 ## Son güncelleme
+
+- Başlık ve kalın yazılardaki gereksiz harf aralığı kaldırıldı; Türkçe karakterler korunuyor.
+- Oyuncu, tank, can ve skor göstergeleri yarı şeffaf kartlarla yenilendi; renk şeritleri oyuncu rengine bağlı.
+- 1920 × 1080 ana menü, bot maçı ve iki oyunculu maçta etkin metinlerde taşma bulunmadı.
+- Rastgele harita seçimi 120 kez denendi: üç arena da seçildi, art arda tekrar oluşmadı.
+- Bot maçında Ay Üssü açılışı; iki oyunculu maçta Orman açılışı ve yeniden oynama ile Ay Üssü'ne geçiş doğrulandı.
+- Yeni maç haritayı belirliyor; rauntlar haritayı yeniden seçmiyor.
+- 1.4.0 Windows 64 bit derlemesi başarılı: 0 hata, 178,12 MB. Unity'nin mevcut proje ayarı ve paket uyarıları devam ediyor.
+
+## Önceki kontroller
 
 - Botlar yakındaki ulaşılabilir güçlendirmeleri hedefleyip topluyor; canları azaldığında iyileştirmeye öncelik veriyor.
 - Altı güçlendirme gerçek botta ana ve alt nesne çarpıştırıcılarıyla toplam 12 kez denendi; etkilerin uygulandığı doğrulandı.

@@ -26,6 +26,12 @@ Ateş tuşunu basılı tutarak atışı güçlendirebilirsiniz. Garajdan tank se
 
 Garajdaki **Tank rengi** bölümünden turkuaz, turuncu, yeşil, kırmızı, mavi, mor, kum veya beyaz seçebilirsiniz. Renkler ücretsizdir; seçim otomatik kaydedilir ve tüm tanklarınıza uygulanır. İki oyunculu modda her oyuncunun rengi ayrı kaydedilir.
 
+## Rastgele arenalar
+
+Hem iki kişilik düellolarda hem bilgisayara karşı maçlarda **Orman, Çöl ve Ay Üssü** arasından rastgele arena seçilir. Her yeni maçta ve **Yeniden oyna** seçiminde harita değişir; aynı arena art arda gelmez. Bir maçın rauntları aynı arenada oynanır.
+
+Oyun içindeki yarı şeffaf göstergeler oyuncu adını, tank modelini, canı ve skoru ayrı alanlarda gösterir. Renk şeritleri garajda seçtiğiniz tank rengiyle eşleşir.
+
 ## Bilgisayara karşı
 
 | Zorluk | Rakip tank | Can |

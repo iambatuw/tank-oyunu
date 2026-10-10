@@ -12,17 +12,23 @@ public sealed class DuelOpponentMarker : MonoBehaviour
     private TextMeshProUGUI label;
     private Image plate;
 
-    public void Configure(Camera camera, Transform target, GameObject matchHud, TMP_FontAsset font)
+    public void Configure(Camera camera, Transform target, GameObject matchHud, TMP_FontAsset font, Color color)
     {
         view = camera;
         opponent = target;
         hud = matchHud;
         rect = GetComponent<RectTransform>();
-        rect.sizeDelta = new Vector2(210, 48);
+        rect.sizeDelta = new Vector2(168, 50);
         plate = GetComponent<Image>() ?? gameObject.AddComponent<Image>();
-        plate.color = new Color(0.06f, 0.09f, 0.08f, 0.9f);
+        plate.color = new Color(0.045f, 0.07f, 0.06f, 0.60f);
+        plate.sprite = TankDuel.RoundedSprite();
+        plate.type = Image.Type.Sliced;
         plate.raycastTarget = false;
-        if (label != null) return;
+        if (label != null)
+        {
+            label.color = Color.Lerp(color, Color.white, 0.45f);
+            return;
+        }
         var text = new GameObject("Direction label", typeof(RectTransform));
         text.transform.SetParent(transform, false);
         var textRect = text.GetComponent<RectTransform>();
@@ -33,7 +39,8 @@ public sealed class DuelOpponentMarker : MonoBehaviour
         label.font = font;
         label.fontSize = 22;
         label.alignment = TextAlignmentOptions.Center;
-        label.color = new Color(0.93f, 0.66f, 0.31f);
+        label.color = Color.Lerp(color, Color.white, 0.45f);
+        label.fontStyle = FontStyles.Bold;
         label.raycastTarget = false;
     }
 
@@ -50,7 +57,7 @@ public sealed class DuelOpponentMarker : MonoBehaviour
             Mathf.Clamp(viewport.y, 0.13f, 0.80f));
         rect.anchorMin = rect.anchorMax = location;
         rect.anchoredPosition = Vector2.zero;
-        string name = TankDuelLocalization.IsTurkish ? "RAKİP" : "OPPONENT";
+        string name = TankDuelLocalization.IsTurkish ? "Rakip" : "Opponent";
         float x = viewport.x - 0.5f;
         float y = viewport.y - DuelCameraFraming.PlayerScreenHeight;
         label.text = Mathf.Abs(x) > Mathf.Abs(y) ?

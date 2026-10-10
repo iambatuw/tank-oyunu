@@ -154,12 +154,14 @@ public partial class TankDuel : MonoBehaviour
     private Image p1HealthFillImg;
     private TextMeshProUGUI p1HealthText;
     private TextMeshProUGUI p1NameText;
+    private TextMeshProUGUI p1TankText;
     private TextMeshProUGUI p1WinsText;
 
     private RectTransform p2HealthFill;
     private Image p2HealthFillImg;
     private TextMeshProUGUI p2HealthText;
     private TextMeshProUGUI p2NameText;
+    private TextMeshProUGUI p2TankText;
     private TextMeshProUGUI p2WinsText;
 
     // Toast Banner
@@ -177,9 +179,6 @@ public partial class TankDuel : MonoBehaviour
     private Button[] diffButtons = new Button[3];
     private TextMeshProUGUI[] diffButtonLabels = new TextMeshProUGUI[3];
     private TextMeshProUGUI diffHintLabel;
-
-    private Button[] arenaButtons = new Button[3];
-    private TextMeshProUGUI[] arenaButtonLabels = new TextMeshProUGUI[3];
 
     // Garage Details
     private int currentGaragePlayer = 1;
@@ -229,12 +228,6 @@ public partial class TankDuel : MonoBehaviour
             }
             return 0;
         }
-    }
-
-    private int SelectedArenaIndex
-    {
-        get => TankDuelData.SelectedArena;
-        set => TankDuelData.SelectedArena = value;
     }
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
@@ -752,12 +745,11 @@ public partial class TankDuel : MonoBehaviour
         // Score & Round
         int leftWins = gameManager.m_SpawnPoints[0].m_Wins;
         int rightWins = gameManager.m_SpawnPoints[1].m_Wins;
-        string p2Title = TankDuelData.AIModeEnabled ? (TankDuelLocalization.IsTurkish ? "BİLGİSAYAR" : "BOT") : (TankDuelLocalization.IsTurkish ? "2. OYUNCU" : "P2");
-        scoreText.text = $"{leftWins}   -   {rightWins}";
+        scoreText.text = $"{leftWins}  –  {rightWins}";
         roundText.text = $"{TankDuelLocalization.Get("ROUND")} {gameManager.RoundNumber} / {gameManager.m_NumRoundsToWin}";
 
-        if (p1WinsText != null) p1WinsText.text = $"{TankDuelLocalization.Get("VICTORIES")}: {leftWins}";
-        if (p2WinsText != null) p2WinsText.text = $"{TankDuelLocalization.Get("VICTORIES")}: {rightWins}";
+        if (p1WinsText != null) p1WinsText.text = $"{leftWins} {TankDuelLocalization.Get("VICTORIES")}";
+        if (p2WinsText != null) p2WinsText.text = $"{rightWins} {TankDuelLocalization.Get("VICTORIES")}";
 
         // P1 Health Bar
         float curH1 = Health(0);
@@ -765,7 +757,7 @@ public partial class TankDuel : MonoBehaviour
         float ratio1 = Mathf.Clamp01(curH1 / Mathf.Max(1f, maxH1));
         if (p1HealthFill != null)
         {
-            p1HealthFill.sizeDelta = new Vector2(440f * ratio1, 20f);
+            p1HealthFill.sizeDelta = new Vector2(440f * ratio1, 8f);
         }
         if (p1HealthFillImg != null)
         {
@@ -773,7 +765,7 @@ public partial class TankDuel : MonoBehaviour
         }
         if (p1HealthText != null)
         {
-            p1HealthText.text = $"{Mathf.CeilToInt(curH1)} / {Mathf.CeilToInt(maxH1)} {TankDuelLocalization.Get("HEALTH_UNIT")}";
+            p1HealthText.text = $"{Mathf.CeilToInt(curH1)} / {Mathf.CeilToInt(maxH1)}";
         }
 
         // P2 Health Bar
@@ -782,7 +774,7 @@ public partial class TankDuel : MonoBehaviour
         float ratio2 = Mathf.Clamp01(curH2 / Mathf.Max(1f, maxH2));
         if (p2HealthFill != null)
         {
-            p2HealthFill.sizeDelta = new Vector2(440f * ratio2, 20f);
+            p2HealthFill.sizeDelta = new Vector2(440f * ratio2, 8f);
         }
         if (p2HealthFillImg != null)
         {
@@ -790,7 +782,7 @@ public partial class TankDuel : MonoBehaviour
         }
         if (p2HealthText != null)
         {
-            p2HealthText.text = $"{Mathf.CeilToInt(curH2)} / {Mathf.CeilToInt(maxH2)} {TankDuelLocalization.Get("HEALTH_UNIT")}";
+            p2HealthText.text = $"{Mathf.CeilToInt(curH2)} / {Mathf.CeilToInt(maxH2)}";
         }
     }
 
@@ -872,14 +864,12 @@ public partial class TankDuel : MonoBehaviour
 
     private void UpdateDifficultyButtons() => RefreshDifficultyChoices();
 
-    private void UpdateArenaButtons() => RefreshArenaChoices();
-
     private void OnStartMatchClicked()
     {
         if (isStartingMatch) return;
         isStartingMatch = true;
 
-        int chosen = SelectedArenaIndex;
+        int chosen = TankDuelData.SelectRandomArena(ArenaScenes.Length);
         if (chosen == CurrentSceneIndex)
         {
             ApplyTankSelection();
@@ -1368,102 +1358,9 @@ public partial class TankDuel : MonoBehaviour
     {
         ShowPanel(menuPanel);
         UpdateModeCards();
-        UpdateArenaButtons();
     }
 
-    private void CreateHudPanel()
-    {
-        hud = new GameObject("MATCH HUD", typeof(RectTransform));
-        hud.transform.SetParent(canvas.transform, false);
-        var hudRect = hud.GetComponent<RectTransform>();
-        hudRect.anchorMin = new Vector2(0.5f, 1); hudRect.anchorMax = new Vector2(0.5f, 1);
-        hudRect.pivot = new Vector2(0.5f, 1);
-        hudRect.sizeDelta = new Vector2(1740, 120); hudRect.anchoredPosition = new Vector2(0, -10);
-
-        // Player 1 Card (Left)
-        var p1Card = new GameObject("P1_Card", typeof(RectTransform), typeof(Image));
-        p1Card.transform.SetParent(hud.transform, false);
-        var p1Cr = p1Card.GetComponent<RectTransform>();
-        p1Cr.anchorMin = p1Cr.anchorMax = new Vector2(0.5f, 0.5f);
-        p1Cr.sizeDelta = new Vector2(480, 85); p1Cr.anchoredPosition = new Vector2(-480, 0);
-        p1Card.GetComponent<Image>().color = new Color(0.06f, 0.10f, 0.14f, 0.95f);
-
-        string p1Init = TankDuelLocalization.IsTurkish ? "1. OYUNCU: STANDART" : "P1: STANDARD";
-        p1NameText = Label(p1Card.transform, p1Init, 20, Cyan, new Vector2(-110, 22), new Vector2(240, 30));
-        p1NameText.alignment = TextAlignmentOptions.Left;
-        p1WinsText = Label(p1Card.transform, $"{TankDuelLocalization.Get("VICTORIES")}: 0", 17, Muted, new Vector2(130, 22), new Vector2(160, 30));
-        p1WinsText.alignment = TextAlignmentOptions.Right;
-
-        // P1 Health Bar Container
-        var p1Track = new GameObject("P1_Track", typeof(RectTransform), typeof(Image));
-        p1Track.transform.SetParent(p1Card.transform, false);
-        var p1Tr = p1Track.GetComponent<RectTransform>();
-        p1Tr.anchorMin = p1Tr.anchorMax = new Vector2(0.5f, 0.5f);
-        p1Tr.sizeDelta = new Vector2(440, 20); p1Tr.anchoredPosition = new Vector2(0, -14);
-        p1Track.GetComponent<Image>().color = new Color(0.12f, 0.16f, 0.22f, 1f);
-
-        var p1FillObj = new GameObject("P1_Fill", typeof(RectTransform), typeof(Image));
-        p1FillObj.transform.SetParent(p1Track.transform, false);
-        p1HealthFill = p1FillObj.GetComponent<RectTransform>();
-        p1HealthFill.anchorMin = new Vector2(0, 0.5f); p1HealthFill.anchorMax = new Vector2(0, 0.5f);
-        p1HealthFill.pivot = new Vector2(0, 0.5f);
-        p1HealthFill.sizeDelta = new Vector2(440, 20); p1HealthFill.anchoredPosition = Vector2.zero;
-        p1HealthFillImg = p1FillObj.GetComponent<Image>();
-        p1HealthFillImg.color = Cyan;
-
-        p1HealthText = Label(p1Track.transform, $"50 / 50 {TankDuelLocalization.Get("HEALTH_UNIT")}", 15, OffWhite, Vector2.zero, new Vector2(440, 20));
-
-        // Player 2 / Bot Card (Right)
-        var p2Card = new GameObject("P2_Card", typeof(RectTransform), typeof(Image));
-        p2Card.transform.SetParent(hud.transform, false);
-        var p2Cr = p2Card.GetComponent<RectTransform>();
-        p2Cr.anchorMin = p2Cr.anchorMax = new Vector2(0.5f, 0.5f);
-        p2Cr.sizeDelta = new Vector2(480, 85); p2Cr.anchoredPosition = new Vector2(480, 0);
-        p2Card.GetComponent<Image>().color = new Color(0.06f, 0.10f, 0.14f, 0.95f);
-
-        string p2Label = TankDuelData.AIModeEnabled ? (TankDuelLocalization.IsTurkish ? "BİLGİSAYAR" : "BOT") : (TankDuelLocalization.IsTurkish ? "2. OYUNCU" : "P2");
-        p2NameText = Label(p2Card.transform, $"{p2Label}: STANDART", 20, Amber, new Vector2(-110, 22), new Vector2(240, 30));
-        p2NameText.alignment = TextAlignmentOptions.Left;
-        p2WinsText = Label(p2Card.transform, $"{TankDuelLocalization.Get("VICTORIES")}: 0", 17, Muted, new Vector2(130, 22), new Vector2(160, 30));
-        p2WinsText.alignment = TextAlignmentOptions.Right;
-
-        // P2 Health Bar Container
-        var p2Track = new GameObject("P2_Track", typeof(RectTransform), typeof(Image));
-        p2Track.transform.SetParent(p2Card.transform, false);
-        var p2Tr = p2Track.GetComponent<RectTransform>();
-        p2Tr.anchorMin = p2Tr.anchorMax = new Vector2(0.5f, 0.5f);
-        p2Tr.sizeDelta = new Vector2(440, 20); p2Tr.anchoredPosition = new Vector2(0, -14);
-        p2Track.GetComponent<Image>().color = new Color(0.12f, 0.16f, 0.22f, 1f);
-
-        var p2FillObj = new GameObject("P2_Fill", typeof(RectTransform), typeof(Image));
-        p2FillObj.transform.SetParent(p2Track.transform, false);
-        p2HealthFill = p2FillObj.GetComponent<RectTransform>();
-        p2HealthFill.anchorMin = new Vector2(0, 0.5f); p2HealthFill.anchorMax = new Vector2(0, 0.5f);
-        p2HealthFill.pivot = new Vector2(0, 0.5f);
-        p2HealthFill.sizeDelta = new Vector2(440, 20); p2HealthFill.anchoredPosition = Vector2.zero;
-        p2HealthFillImg = p2FillObj.GetComponent<Image>();
-        p2HealthFillImg.color = Amber;
-
-        p2HealthText = Label(p2Track.transform, $"50 / 50 {TankDuelLocalization.Get("HEALTH_UNIT")}", 15, OffWhite, Vector2.zero, new Vector2(440, 20));
-
-        // Center Countdown & Match Card
-        var centerCard = new GameObject("Center_Card", typeof(RectTransform), typeof(Image));
-        centerCard.transform.SetParent(hud.transform, false);
-        var ccr = centerCard.GetComponent<RectTransform>();
-        ccr.anchorMin = ccr.anchorMax = new Vector2(0.5f, 0.5f);
-        ccr.sizeDelta = new Vector2(260, 95); ccr.anchoredPosition = new Vector2(0, 0);
-        centerCard.GetComponent<Image>().color = new Color(0.04f, 0.07f, 0.10f, 0.98f);
-
-        timerText = Label(centerCard.transform, "90", 42, OffWhite, new Vector2(0, 18), new Vector2(240, 52), true);
-        timerText.enableAutoSizing = true;
-        timerText.fontSizeMin = 36;
-        timerText.fontSizeMax = 42;
-        timerText.textWrappingMode = TextWrappingModes.NoWrap;
-        roundText = Label(centerCard.transform, $"{TankDuelLocalization.Get("ROUND")} 1 / 5", 15, Muted, new Vector2(0, -16), new Vector2(240, 24));
-        scoreText = Label(centerCard.transform, "0   -   0", 17, Cyan, new Vector2(0, -32), new Vector2(240, 24));
-
-        hud.SetActive(false);
-    }
+    private void CreateHudPanel() => BuildMatchHud();
 
     private void CreateToastPanel()
     {
@@ -1549,7 +1446,7 @@ public partial class TankDuel : MonoBehaviour
                 marker = markerObject.AddComponent<DuelOpponentMarker>();
             }
             marker.Configure(Camera.main, gameManager.m_SpawnPoints[1].m_Instance.transform,
-                hud, bodyFont);
+                hud, bodyFont, gameManager.m_SpawnPoints[1].m_PlayerColor);
         }
 
         // Apply asymmetric vehicle archetype performance stats
@@ -1558,20 +1455,20 @@ public partial class TankDuel : MonoBehaviour
         if (p1NameText != null)
         {
             int p1Idx = Mathf.Clamp(TankDuelData.Player1TankIndex, 0, Archetypes.Length - 1);
-            string p1Label = TankDuelLocalization.IsTurkish ? "1. OYUNCU" : "P1";
-            p1NameText.text = $"{p1Label}: {Archetypes[p1Idx].GetName()}";
-            p1NameText.color = gameManager.m_SpawnPoints[0].m_PlayerColor;
+            p1NameText.text = UiCopy("1. oyuncu", "Player 1");
+            p1TankText.text = HudTankName(p1Idx);
         }
         if (p2NameText != null)
         {
             int p2Idx = GetOpponentTankIndex();
-            string p2Label = TankDuelData.AIModeEnabled ? (TankDuelLocalization.IsTurkish ? "BİLGİSAYAR" : "BOT") : (TankDuelLocalization.IsTurkish ? "2. OYUNCU" : "P2");
-            p2NameText.text = $"{p2Label}: {Archetypes[p2Idx].GetName()}";
-            p2NameText.color = gameManager.m_SpawnPoints[1].m_PlayerColor;
+            p2NameText.text = TankDuelData.AIModeEnabled ? UiCopy("Bilgisayar", "Computer") : UiCopy("2. oyuncu", "Player 2");
+            p2TankText.text = HudTankName(p2Idx);
         }
 
         if (hud != null)
         {
+            for (int i = 0; i < hudAccents.Length; i++)
+                if (hudAccents[i] != null) hudAccents[i].color = gameManager.m_SpawnPoints[i].m_PlayerColor;
             hud.SetActive(true);
             UpdateHudTexts();
         }
@@ -1634,7 +1531,8 @@ public partial class TankDuel : MonoBehaviour
     {
         Time.timeScale = 1f;
         TankDuelData.AutoStartMatch = true;
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        int chosen = TankDuelData.SelectRandomArena(ArenaScenes.Length);
+        SceneManager.LoadScene(ArenaScenes[chosen]);
     }
 
     private void ReturnToMenu()

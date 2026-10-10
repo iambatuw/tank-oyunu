@@ -376,6 +376,18 @@ public static class TankDuelData
         set { PlayerPrefs.SetInt("TankDuel.Arena", Mathf.Clamp(value, 0, 2)); PlayerPrefs.Save(); }
     }
 
+    public static int SelectRandomArena(int arenaCount)
+    {
+        if (arenaCount < 1) throw new ArgumentOutOfRangeException(nameof(arenaCount));
+        int previous = PlayerPrefs.GetInt("TankDuel.LastRandomArena", -1);
+        bool excludePrevious = arenaCount > 1 && previous >= 0 && previous < arenaCount;
+        int chosen = UnityEngine.Random.Range(0, excludePrevious ? arenaCount - 1 : arenaCount);
+        if (excludePrevious && chosen >= previous) chosen++;
+        PlayerPrefs.SetInt("TankDuel.LastRandomArena", chosen);
+        SelectedArena = chosen;
+        return chosen;
+    }
+
     public static int DurationIndex
     {
         get => Mathf.Clamp(PlayerPrefs.GetInt("TankDuel.Duration", 1), 0, 2);

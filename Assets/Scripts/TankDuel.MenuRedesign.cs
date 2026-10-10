@@ -28,6 +28,68 @@ public partial class TankDuel
     private readonly List<Material> garagePreviewMaterials = new List<Material>();
     private Button[] garageColorButtons;
     private TextMeshProUGUI garageColorNameText;
+    private readonly Image[] hudAccents = new Image[2];
+
+    private string HudTankName(int index)
+    {
+        var culture = System.Globalization.CultureInfo.GetCultureInfo(TankDuelLocalization.IsTurkish ? "tr-TR" : "en-US");
+        return culture.TextInfo.ToTitleCase(Archetypes[index].GetName().ToLower(culture));
+    }
+
+    private void BuildMatchHud()
+    {
+        hud = new GameObject("MATCH HUD", typeof(RectTransform));
+        hud.transform.SetParent(canvas.transform, false);
+        var rect = hud.GetComponent<RectTransform>();
+        rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 1f);
+        rect.pivot = new Vector2(0.5f, 1f);
+        rect.sizeDelta = new Vector2(1760, 144);
+        rect.anchoredPosition = new Vector2(0, -20);
+
+        BuildPlayerHud(0, -600, out p1NameText, out p1TankText, out p1WinsText,
+            out p1HealthText, out p1HealthFill, out p1HealthFillImg);
+        BuildPlayerHud(1, 600, out p2NameText, out p2TankText, out p2WinsText,
+            out p2HealthText, out p2HealthFill, out p2HealthFillImg);
+        var center = UiBlock(hud.transform, "Center_Card", Vector2.zero,
+            new Vector2(280, 126), new Color(0.045f, 0.07f, 0.06f, 0.62f));
+        timerText = UiLabel(center.transform, "90", 40, UiText,
+            new Vector2(0, 30), new Vector2(252, 50), TextAlignmentOptions.Center, true);
+        timerText.fontSizeMin = 36;
+        scoreText = UiLabel(center.transform, "0  –  0", 24, UiText,
+            new Vector2(0, -14), new Vector2(240, 34), TextAlignmentOptions.Center, true);
+        roundText = UiLabel(center.transform, TankDuelLocalization.Get("ROUND") + " 1 / 3", 16,
+            new Color(0.85f, 0.88f, 0.83f), new Vector2(0, -44), new Vector2(240, 26), TextAlignmentOptions.Center);
+        hud.SetActive(false);
+    }
+
+    private void BuildPlayerHud(int player, float x, out TextMeshProUGUI nameText,
+        out TextMeshProUGUI tankText, out TextMeshProUGUI winsText,
+        out TextMeshProUGUI healthText, out RectTransform healthFill, out Image healthImage)
+    {
+        Color color = player == 0 ? TankDuelData.GetPlayerColor(1) : TankDuelData.GetOpponentColor();
+        var card = UiBlock(hud.transform, player == 0 ? "P1_Card" : "P2_Card", new Vector2(x, 0),
+            new Vector2(480, 126), new Color(0.045f, 0.07f, 0.06f, 0.60f));
+        hudAccents[player] = UiBlock(card.transform, "Player color", new Vector2(-238, 0),
+            new Vector2(4, 84), color, false).GetComponent<Image>();
+        nameText = UiLabel(card.transform, player == 0 ? UiCopy("1. oyuncu", "Player 1") : UiCopy("Rakip", "Opponent"),
+            24, UiText, new Vector2(-68, 32), new Vector2(304, 34), bold: true);
+        var badge = UiBlock(card.transform, "Victories", new Vector2(165, 32),
+            new Vector2(110, 34), new Color(1, 1, 1, 0.08f));
+        winsText = UiLabel(badge.transform, "0 " + TankDuelLocalization.Get("VICTORIES"), 17,
+            UiText, Vector2.zero, new Vector2(102, 30), TextAlignmentOptions.Center);
+        tankText = UiLabel(card.transform, "", 21, new Color(0.87f, 0.90f, 0.86f),
+            new Vector2(-74, -7), new Vector2(292, 32));
+        healthText = UiLabel(card.transform, "50 / 50", 21, UiText,
+            new Vector2(162, -7), new Vector2(116, 32), TextAlignmentOptions.Right, true);
+        var track = UiBlock(card.transform, "Health track", new Vector2(0, -40),
+            new Vector2(440, 8), new Color(1, 1, 1, 0.16f));
+        var fill = UiBlock(track.transform, "Health fill", Vector2.zero, new Vector2(440, 8), color);
+        healthFill = fill.GetComponent<RectTransform>();
+        healthFill.anchorMin = healthFill.anchorMax = new Vector2(0, 0.5f);
+        healthFill.pivot = new Vector2(0, 0.5f);
+        healthFill.anchoredPosition = Vector2.zero;
+        healthImage = fill.GetComponent<Image>();
+    }
 
     public static void ApplyMusicPreference()
     {
@@ -104,7 +166,7 @@ public partial class TankDuel
     private string GetCoinsLabel() => TankDuelData.Coins.ToString("N0",
         System.Globalization.CultureInfo.GetCultureInfo(TankDuelLocalization.IsTurkish ? "tr-TR" : "en-US"));
 
-    private static Sprite RoundedSprite()
+    internal static Sprite RoundedSprite()
     {
         if (uiRoundedSprite != null) return uiRoundedSprite;
         const int side = 32;
@@ -222,7 +284,7 @@ public partial class TankDuel
         UiLabel(menuPanel.transform, UiCopy("Tank Düellosu", "Tank Duel"), 78, UiText,
             new Vector2(-420, 244), new Vector2(730, 122), bold: true);
         UiLabel(menuPanel.transform,
-            UiCopy("Arenanı seç, tankını hazırla\nve düelloya gir.", "Choose an arena, ready your tank\nand enter the duel."),
+            UiCopy("Tankını hazırla, arenaya çık\nve düelloya gir.", "Ready your tank, enter the arena\nand face your opponent."),
             29, UiMuted, new Vector2(-418, 112), new Vector2(710, 94), wrap: true);
         UiRuleLine(menuPanel.transform, new Vector2(-467, -252), 680);
         UiLabel(menuPanel.transform,
@@ -281,25 +343,18 @@ public partial class TankDuel
         diffHintLabel = UiLabel(difficultySection.transform, "", 20, UiMuted,
             new Vector2(0, -52), new Vector2(790, 29), TextAlignmentOptions.Center);
 
-        UiLabel(card.transform, TankDuelLocalization.Get("SELECT_ARENA"), 19, UiMuted,
+        UiLabel(card.transform, UiCopy("RASTGELE HARİTA", "RANDOM ARENA"), 19, UiMuted,
             new Vector2(-120, -105), new Vector2(560, 34), bold: true);
-        string[] arenas = TankDuelLocalization.IsTurkish ? ArenaNamesTR : ArenaNamesEN;
-        for (int i = 0; i < 3; i++)
-        {
-            int index = i;
-            var choice = UiButton(card.transform, "Arena " + i, arenas[i],
-                new Vector2((i - 1) * 273, -164), new Vector2(255, 62), UiQuiet, UiText,
-                () => { SelectedArenaIndex = index; UpdateArenaButtons(); }, 22);
-            arenaButtons[i] = choice;
-            arenaButtonLabels[i] = choice.GetComponentInChildren<TextMeshProUGUI>();
-        }
+        UiLabel(card.transform, UiCopy("Orman  •  Çöl  •  Ay Üssü", "Jungle  •  Desert  •  Moon Base"),
+            27, UiText, new Vector2(0, -156), new Vector2(800, 40), TextAlignmentOptions.Center, true);
+        UiLabel(card.transform, UiCopy("Her yeni maçta farklı bir arena", "A different arena for every new match"),
+            20, UiMuted, new Vector2(0, -198), new Vector2(800, 30), TextAlignmentOptions.Center);
         UiRuleLine(card.transform, new Vector2(0, -234), 800);
         UiButton(card.transform, "Start match", TankDuelLocalization.Get("START_MATCH"),
             new Vector2(0, -334), new Vector2(800, 82), UiAccent, UiBackdrop, OnStartMatchClicked, 30);
 
         UpdateModeCards();
         UpdateDifficultyButtons();
-        UpdateArenaButtons();
         menuPanel.SetActive(false);
     }
 
@@ -326,16 +381,6 @@ public partial class TankDuel
             TankDuelData.AIDifficulty == 1 ?
                 UiCopy("45 can • Dengeli hız ve isabet", "45 health • Balanced speed and accuracy") :
                 UiCopy("50 can • Hızlı, agresif rakip", "50 health • Fast, aggressive opponent");
-    }
-
-    private void RefreshArenaChoices()
-    {
-        string[] names = TankDuelLocalization.IsTurkish ? ArenaNamesTR : ArenaNamesEN;
-        for (int i = 0; i < arenaButtons.Length; i++)
-        {
-            arenaButtonLabels[i].text = names[i];
-            PaintChoice(arenaButtons[i], arenaButtonLabels[i], i == SelectedArenaIndex, UiAccent);
-        }
     }
 
     private void BuildGaragePanel()
