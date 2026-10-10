@@ -2,6 +2,19 @@
 
 ## Son güncelleme
 
+- 1.4.1: Harita yüklemeleri tek seferlik, hedef sahneye bağlı bir geçiş üzerinden yapılıyor. Otomatik başlatma isteği artık kalıcı oyuncu ayarlarında tutulmuyor.
+- İki modda toplam altı yeniden oynama geçişi kontrol edildi; Orman, Çöl ve Ay Üssü açıldı.
+- 120 tekrarlı yeniden oynama çağrısı ve maç sırasında 480 eski menü/başlatma çağrısı ek sahne yüklemedi, tankları yeniden oluşturmadı.
+- Her geçişte tek oyun yöneticisi bulundu; oyun sırasında menü klavye gezinmesi kapalı kaldı.
+- Aynı sonuç olayı iki kez gönderildiğinde altın ödülü yalnızca bir kez verildi.
+- Duraklatma menüsünden 20 tekrarlı dönüş çağrısı tek ana menü açtı. Ardından 20 tekrarlı başlatma çağrısı tek maç açtı.
+- Güçlendirme bildirimi iki satır ve oyuncu rengiyle yenilendi; 1080p önizlemede metin taşması ve rakip işaretiyle çakışma görülmedi.
+- Çalışma kontrollerinin sonunda Unity konsolunda hata bulunmadı. Denemelerde kullanılan altın ve oyun tercihleri geri yüklendi.
+- 1.4.1 Windows 64 bit derlemesi 0 hatayla tamamlandı (178,12 MB). Mevcut Unity proje/paket uyarıları devam ediyor.
+- Oluşturulan Windows EXE'si 12 saniyelik arka plan açılış kontrolünde çalışır kaldı; taranan çalışma istisnaları bulunmadı. Bu kontrol görsel oyun testi değildir; görsel ve maç akışı kontrolleri Unity oyun görünümünde yapıldı.
+
+## 1.4.0 kontrolleri
+
 - Başlık ve kalın yazılardaki gereksiz harf aralığı kaldırıldı; Türkçe karakterler korunuyor.
 - Oyuncu, tank, can ve skor göstergeleri yarı şeffaf kartlarla yenilendi; renk şeritleri oyuncu rengine bağlı.
 - 1920 × 1080 ana menü, bot maçı ve iki oyunculu maçta etkin metinlerde taşma bulunmadı.

@@ -32,6 +32,8 @@ Hem iki kişilik düellolarda hem bilgisayara karşı maçlarda **Orman, Çöl v
 
 Oyun içindeki yarı şeffaf göstergeler oyuncu adını, tank modelini, canı ve skoru ayrı alanlarda gösterir. Renk şeritleri garajda seçtiğiniz tank rengiyle eşleşir.
 
+Harita yalnızca ana menüde **Savaşa başla** veya maç sonunda **Yeniden oyna** seçildiğinde belirlenir. Hızlı tekrar tıklamalar ek yükleme başlatmaz; oyun sırasında ateş ve yön tuşları menü komutlarını çalıştırmaz.
+
 ## Bilgisayara karşı
 
 | Zorluk | Rakip tank | Can |
@@ -58,6 +60,10 @@ Yakındaki patlama hasarı mesafeyle azalır. Kalkan ve geçici dokunulmazlık a
 
 ![Oyun içi görünüm](UI-Preview/gameplay-player-follow.png)
 
+Güçlendirmeler küçük, yarı şeffaf bir bildirimle gösterilir. Rakip yön işareti bildirim alanının dışında kalır ve raunt aralarında gizlenir.
+
+![Güçlendirme ve rakip yönü](UI-Preview/gameplay-notifications.png)
+
 ## Garaj ve ayarlar
 
 | Garaj | Ayarlar |
@@ -67,6 +73,8 @@ Yakındaki patlama hasarı mesafeyle azalır. Kalkan ve geçici dokunulmazlık a
 ## Unity projesini aç
 
 Proje Unity **6000.6.4f1** ile geliştirilmiştir. Sahneler, modeller, oyun kodları ve proje ayarları depoda bulunur.
+
+Releases bölümündeki **TankDuellosu-Unity-Projesi.zip**, düzenlenebilir Unity kaynak paketidir. Hazır oyunu çalıştırmak için **TankDuellosu-Windows.zip** dosyasını kullanın.
 
 1. Depoyu indirin ve ZIP dosyasını çıkartın.
 2. Unity Hub üzerinden çıkartılan ana klasörü proje olarak ekleyin.

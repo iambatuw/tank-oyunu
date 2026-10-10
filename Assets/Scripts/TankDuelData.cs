@@ -358,18 +358,6 @@ public static class TankDuelData
         set { PlayerPrefs.SetInt("TankDuel.AIDifficulty", Mathf.Clamp(value, 0, 2)); PlayerPrefs.Save(); }
     }
 
-    public static bool AutoStartMatch
-    {
-        get => PlayerPrefs.GetInt("TankDuel.AutoStart", 0) == 1;
-        set { PlayerPrefs.SetInt("TankDuel.AutoStart", value ? 1 : 0); PlayerPrefs.Save(); }
-    }
-
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-    private static void ResetAutoStartOnLaunch()
-    {
-        PlayerPrefs.SetInt("TankDuel.AutoStart", 0);
-    }
-
     public static int SelectedArena
     {
         get => Mathf.Clamp(PlayerPrefs.GetInt("TankDuel.Arena", 0), 0, 2);

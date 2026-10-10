@@ -48,13 +48,15 @@ public sealed class DuelOpponentMarker : MonoBehaviour
     {
         if (label == null) return;
         bool visible = view != null && opponent != null && opponent.gameObject.activeInHierarchy &&
-            hud != null && hud.activeInHierarchy && Time.timeScale > 0f;
+            hud != null && hud.activeInHierarchy && Time.timeScale > 0f &&
+            TankDuel.Instance != null && TankDuel.Instance.gameManager != null &&
+            TankDuel.Instance.gameManager.IsRoundPlaying;
         Vector3 viewport = visible ? view.WorldToViewportPoint(opponent.position) : Vector3.zero;
         visible &= viewport.x < 0.07f || viewport.x > 0.93f || viewport.y < 0.10f || viewport.y > 0.83f;
         plate.enabled = label.enabled = visible;
         if (!visible) return;
         Vector2 location = new Vector2(Mathf.Clamp(viewport.x, 0.10f, 0.90f),
-            Mathf.Clamp(viewport.y, 0.13f, 0.80f));
+            Mathf.Clamp(viewport.y, 0.13f, 0.72f));
         rect.anchorMin = rect.anchorMax = location;
         rect.anchoredPosition = Vector2.zero;
         string name = TankDuelLocalization.IsTurkish ? "Rakip" : "Opponent";

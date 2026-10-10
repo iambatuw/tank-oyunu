@@ -130,7 +130,15 @@ namespace Tanks.Complete
                         PowerUpType.DamageMultiplier => TankDuelLocalization.Get("PU_DAMAGE"),
                         _ => (TankDuelLocalization.IsTurkish ? "GÜÇLENDİRME" : "POWER-UP")
                     };
-                    TankDuel.ShowToast($"{playerLabel}: {puName}");
+                    var culture = System.Globalization.CultureInfo.GetCultureInfo(
+                        TankDuelLocalization.IsTurkish ? "tr-TR" : "en-US");
+                    string detail = puName.TrimEnd('!').ToLower(culture);
+                    if (detail.Length > 0) detail = char.ToUpper(detail[0], culture) + detail.Substring(1);
+                    if (m_PowerUpType == PowerUpType.Invincibility)
+                        detail = TankDuelLocalization.IsTurkish ? "Geçici dokunulmazlık" : "Temporary invincibility";
+                    bool firstPlayer = movement != null && movement.m_PlayerNumber == 1;
+                    TankDuel.ShowToast(detail, culture.TextInfo.ToTitleCase(playerLabel.ToLower(culture)),
+                        firstPlayer ? TankDuelData.GetPlayerColor(1) : TankDuelData.GetOpponentColor());
                 }
             }
         }

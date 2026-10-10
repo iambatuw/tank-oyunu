@@ -239,7 +239,11 @@ public partial class TankDuel
         colors.pressedColor = new Color(0.81f, 0.81f, 0.81f, 1f);
         colors.selectedColor = Color.white;
         button.colors = colors;
-        button.onClick.AddListener(() => click?.Invoke());
+        button.onClick.AddListener(() =>
+        {
+            if (button != null && button.isActiveAndEnabled && button.interactable &&
+                !DuelSceneTransition.IsLoading) click?.Invoke();
+        });
         if (!string.IsNullOrEmpty(title))
             UiLabel(go.transform, title, textSize, foreground, Vector2.zero,
                 size - new Vector2(24, 12), TextAlignmentOptions.Center, true);

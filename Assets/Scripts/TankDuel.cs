@@ -167,6 +167,8 @@ public partial class TankDuel : MonoBehaviour
     // Toast Banner
     private GameObject toastPanel;
     private TextMeshProUGUI toastText;
+    private TextMeshProUGUI toastContext;
+    private Image toastAccent;
     private Coroutine activeToastCoroutine;
 
     // Menu Elements
@@ -282,15 +284,14 @@ public partial class TankDuel : MonoBehaviour
 
     private void Awake()
     {
-        Time.timeScale = 1f;
-        isStartingMatch = false;
-
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
             return;
         }
         Instance = this;
+        Time.timeScale = 1f;
+        isStartingMatch = false;
 
         CleanNullOverlayCameras();
 
@@ -432,29 +433,33 @@ public partial class TankDuel : MonoBehaviour
         CreateInterface();
         gameManager.MatchCompleted += ShowResult;
 
-        if (TankDuelData.AutoStartMatch)
+        if (DuelSceneTransition.ConsumeMatchStart(gameObject.scene.name))
         {
-            TankDuelData.AutoStartMatch = false;
+            isStartingMatch = true;
+            HideAllMenuPanels();
             StartCoroutine(StartMatchAfterSceneReady());
         }
         else
         {
+            DuelSceneTransition.Complete(gameObject.scene.name);
             ShowMainMenu();
         }
     }
 
-    public static void ShowToast(string message)
+    public static void ShowToast(string message, string context = null, Color? color = null)
     {
         if (Instance != null)
         {
-            Instance.DisplayToast(message);
+            Instance.DisplayToast(message, context, color);
         }
     }
 
-    private void DisplayToast(string message)
+    private void DisplayToast(string message, string context, Color? color)
     {
         if (toastPanel == null || toastText == null) return;
         toastText.text = message;
+        toastContext.text = context ?? UiCopy("GARAJ", "GARAGE");
+        toastAccent.color = color ?? UiAccent;
         toastPanel.SetActive(true);
 
         if (activeToastCoroutine != null)
@@ -866,7 +871,8 @@ public partial class TankDuel : MonoBehaviour
 
     private void OnStartMatchClicked()
     {
-        if (isStartingMatch) return;
+        if (started || isStartingMatch || DuelSceneTransition.IsLoading ||
+            menuPanel == null || !menuPanel.activeInHierarchy) return;
         isStartingMatch = true;
 
         int chosen = TankDuelData.SelectRandomArena(ArenaScenes.Length);
@@ -879,13 +885,13 @@ public partial class TankDuel : MonoBehaviour
         else
         {
             HideAllMenuPanels();
-            TankDuelData.AutoStartMatch = true;
-            SceneManager.LoadScene(ArenaScenes[chosen]);
+            LoadArena(ArenaScenes[chosen], true);
         }
     }
 
     private void HideAllMenuPanels()
     {
+        SetMenuInput(false);
         if (menuPanel != null) menuPanel.SetActive(false);
         if (topBar != null) topBar.SetActive(false);
         if (garagePanel != null) garagePanel.SetActive(false);
@@ -1324,6 +1330,7 @@ public partial class TankDuel : MonoBehaviour
 
     private void ShowPanel(GameObject panel)
     {
+        SetMenuInput(true);
         if (menuPanel != null) menuPanel.SetActive(panel == menuPanel);
         if (garagePanel != null) garagePanel.SetActive(panel == garagePanel);
         if (settingsPanel != null) settingsPanel.SetActive(panel == settingsPanel);
@@ -1364,15 +1371,21 @@ public partial class TankDuel : MonoBehaviour
 
     private void CreateToastPanel()
     {
-        toastPanel = new GameObject("ToastPanel", typeof(RectTransform), typeof(Image));
-        toastPanel.transform.SetParent(canvas.transform, false);
+        toastPanel = UiBlock(canvas.transform, "ToastPanel", Vector2.zero,
+            new Vector2(460, 88), new Color(0.045f, 0.07f, 0.06f, 0.70f));
         var tpr = toastPanel.GetComponent<RectTransform>();
         tpr.anchorMin = tpr.anchorMax = new Vector2(0.5f, 1f);
         tpr.pivot = new Vector2(0.5f, 1f);
-        tpr.sizeDelta = new Vector2(480, 54); tpr.anchoredPosition = new Vector2(0, -145);
-        toastPanel.GetComponent<Image>().color = new Color(0.04f, 0.08f, 0.12f, 0.94f);
-
-        toastText = Label(toastPanel.transform, "", 22, Amber, Vector2.zero, new Vector2(460, 48), true);
+        tpr.anchoredPosition = new Vector2(0, -174);
+        var group = toastPanel.AddComponent<CanvasGroup>();
+        group.blocksRaycasts = false;
+        group.interactable = false;
+        toastAccent = UiBlock(toastPanel.transform, "Accent", new Vector2(-226, 0),
+            new Vector2(4, 52), UiAccent, false).GetComponent<Image>();
+        toastContext = UiLabel(toastPanel.transform, "", 17, UiMuted,
+            new Vector2(0, 21), new Vector2(410, 28));
+        toastText = UiLabel(toastPanel.transform, "", 25, UiText,
+            new Vector2(0, -14), new Vector2(410, 38), bold: true);
         toastPanel.SetActive(false);
     }
 
@@ -1382,6 +1395,7 @@ public partial class TankDuel : MonoBehaviour
 
     private void StartMatch()
     {
+        if (started) return;
         Time.timeScale = 1f;
 
         CleanNullOverlayCameras();
@@ -1428,11 +1442,13 @@ public partial class TankDuel : MonoBehaviour
         if (!gameManager.HasStarted)
         {
             isStartingMatch = false;
+            DuelSceneTransition.Complete(gameObject.scene.name);
             ShowMainMenu();
             return;
         }
 
         started = true;
+        DuelSceneTransition.Complete(gameObject.scene.name);
         cachedHealth[0] = null;
         cachedHealth[1] = null;
 
@@ -1476,6 +1492,10 @@ public partial class TankDuel : MonoBehaviour
 
     private void SetPaused(bool value)
     {
+        if (!started || gameManager == null || (value && gameManager.IsMatchOver) ||
+            DuelSceneTransition.IsLoading) return;
+        SetMenuInput(value);
+        if (value && toastPanel != null) toastPanel.SetActive(false);
         paused = value;
         pause.SetActive(value);
         Time.timeScale = value ? 0f : 1f;
@@ -1483,6 +1503,7 @@ public partial class TankDuel : MonoBehaviour
 
     private void ShowResult()
     {
+        if (result.activeSelf || DuelSceneTransition.IsLoading) return;
         if (paused) SetPaused(false);
         var winner = gameManager.GameWinner;
 
@@ -1525,21 +1546,39 @@ public partial class TankDuel : MonoBehaviour
 
         TankDuelData.AddCoins(50);
         result.SetActive(true);
+        SetMenuInput(true);
+        if (toastPanel != null) toastPanel.SetActive(false);
     }
 
     private void Rematch()
     {
-        Time.timeScale = 1f;
-        TankDuelData.AutoStartMatch = true;
+        if (DuelSceneTransition.IsLoading || result == null || !result.activeInHierarchy ||
+            gameManager == null || !gameManager.IsMatchOver) return;
+        result.SetActive(false);
         int chosen = TankDuelData.SelectRandomArena(ArenaScenes.Length);
-        SceneManager.LoadScene(ArenaScenes[chosen]);
+        LoadArena(ArenaScenes[chosen], true);
     }
 
     private void ReturnToMenu()
     {
+        if (DuelSceneTransition.IsLoading || (!paused && !result.activeInHierarchy)) return;
+        LoadArena(SceneManager.GetActiveScene().name, false);
+    }
+
+    private void LoadArena(string scene, bool play)
+    {
+        if (!DuelSceneTransition.TryBegin(scene, play)) return;
+        SetMenuInput(false);
+        if (canvas != null) canvas.gameObject.SetActive(false);
         Time.timeScale = 1f;
-        TankDuelData.AutoStartMatch = false;
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        SceneManager.LoadSceneAsync(scene, LoadSceneMode.Single);
+    }
+
+    private static void SetMenuInput(bool enabled)
+    {
+        if (EventSystem.current == null) return;
+        EventSystem.current.SetSelectedGameObject(null);
+        EventSystem.current.sendNavigationEvents = enabled;
     }
 
     private GameObject Panel(string name, Color background, bool fullScreen)
